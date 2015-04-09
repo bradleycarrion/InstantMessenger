@@ -17,7 +17,7 @@ public class Main {
 		XMPPConnection connection = new XMPPConnection("berts-pc");
 		try {
 			connection.connect();
-			connection.login("test", "apple670");
+			connection.login("test", "******");
 			
 			ChatManager chatManager = connection.getChatManager();
 			Chat chat = chatManager.createChat("test2@berts-pc", new MessageListener() {

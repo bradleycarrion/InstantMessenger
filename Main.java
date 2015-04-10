@@ -1,40 +1,35 @@
 
 
-import javax.swing.JFrame;
+import java.util.Scanner;
 
-import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManager;
-import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
-
-public class Main {
+public class Main implements ConnectionDelegate{
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame();
-		frame.setVisible(true);
-		XMPPConnection connection = new XMPPConnection("berts-pc");
-		try {
-			connection.connect();
-			connection.login("test", "******");
-			
-			ChatManager chatManager = connection.getChatManager();
-			Chat chat = chatManager.createChat("test2@berts-pc", new MessageListener() {
-				@Override
-				public void processMessage(Chat arg0, Message arg1) {
-					System.out.println(arg1.getBody());
-				}
-				
-			});
-			
-			chat.sendMessage("Sup");
-		} catch (XMPPException e) {
-			e.getMessage();
-			e.printStackTrace();
-			System.err.println("Could not connect to server");
-		}
 		
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Username: ");
+		String userName = scan.nextLine();
+		System.out.print("Password: ");
+		String pw = scan.nextLine();
+		System.out.print("Server: ");
+		String server = scan.nextLine();
+		
+		Connection connect = new Connection(userName, pw, server);
+		connect.setDelegate(new Main());
+		connect.connect();
+		System.out.print("Who do you want to chat: ");
+		String other = scan.nextLine();
+		connect.startChat(other);
+		
+		while (true) {
+			String message = scan.nextLine();
+			connect.sendMessage(message);
+		}
+	}
+
+	@Override
+	public void handleMessage(String theMessage) {
+		System.out.println(theMessage);
 	}
 	
 }

@@ -5,8 +5,10 @@ import java.util.Scanner;
 public class Main implements ConnectionDelegate{
 	
 	public static void main(String[] args) {
+		UserPrompt prompt = new UserPrompt();
+		prompt.setVisible(true);
 		
-		Scanner scan = new Scanner(System.in);
+		/*Scanner scan = new Scanner(System.in);
 		System.out.print("Username: ");
 		String userName = scan.nextLine();
 		System.out.print("Password: ");
@@ -24,7 +26,7 @@ public class Main implements ConnectionDelegate{
 		while (true) {
 			String message = scan.nextLine();
 			connect.sendMessage(message);
-		}
+		}*/
 	}
 
 	@Override

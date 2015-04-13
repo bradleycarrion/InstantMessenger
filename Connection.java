@@ -35,7 +35,6 @@ public class Connection {
 			@Override
 			public void processMessage(Chat arg0, Message arg1) {
 				delegate.handleMessage(arg0.getParticipant() + ":  " + arg1.getBody());
-				//System.out.println(arg1.getBody());
 			}
 			
 		});

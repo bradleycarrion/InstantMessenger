@@ -1,8 +1,22 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.jivesoftware.smack.XMPPConnection;
@@ -10,32 +24,150 @@ import org.jivesoftware.smack.XMPPException;
 
 
 public class UserPrompt extends JFrame {
-	private final int WIDTH  = 500;
-	private final int HEIGHT = 140;
+	private final int WIDTH  = 400;
+	private final int HEIGHT = 250;
 	
 	private JTextField userName;
 	private JTextField password;
 	private JButton logIn;
+	private JButton signUp;
+	private JPanel mainPanel;
 	
 	public UserPrompt() {
 		super();
-		setBounds(0,0,WIDTH, HEIGHT);
+		
+		
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int width = ((int) screenSize.getWidth()) / 2;
+		int height = ((int) screenSize.getHeight()) / 2;
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(width-(WIDTH/2),height-(HEIGHT/2),WIDTH, HEIGHT);
 		setLayout(null);
+		mainPanel = new JPanel() {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		JLabel contentPane = new JLabel();
+		contentPane.setIcon(new ImageIcon("bulldog.jpg"));//getClass().getClassLoader().getResource("bulldog.jpg")));
+		contentPane.setLayout(new BorderLayout());
+		mainPanel.setLayout(null);
+		mainPanel.setOpaque(false);
+		mainPanel.setBackground(new Color(255,255,255,40));
+		setContentPane(contentPane);
+		setResizable(false);
+		contentPane.add(mainPanel);
+
+		// Username TextField
+		userName = new JTextField() {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		userName.setOpaque(false);
+		userName.setBackground(new Color(255,255,255,200));
+		userName.setBounds(100, 50, 200, 40);
+		userName.setText("username");
+		userName.setEnabled(false);
+		userName.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				if (password.getText().compareTo("") == 0) {
+					password.setText("password");
+					password.setEnabled(false);
+				}
+			    userName.setEnabled(true);
+			    userName.setText("");
+			    userName.requestFocus();
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+			public void mouseReleased(MouseEvent e) {}
+		});
+		userName.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					password.setEnabled(true);
+					password.setText("");
+					password.requestFocus();
+					if (userName.getText().compareTo("") == 0) {
+						userName.setText("username");
+						userName.setEnabled(false);
+					}
+				}
+		    }
+			public void keyReleased(KeyEvent e) {}
+			public void keyTyped(KeyEvent e) {}
+		});
 		
-		userName = new JTextField("Username");
-		userName.setBounds(0,10, 200, 30);
-		password = new JTextField("Password");
-		password.setBounds(0,50, 200, 30);
-		add(userName);
-		add(password);
+		// Password TextField
+		password = new JTextField() {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		password.setOpaque(false);
+		password.setBackground(new Color(255,255,255,200));
+		password.setBounds(100, 100, 200, 40);
+		password.setEnabled(false);
+		password.setText("password");
+		password.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				if (userName.getText().compareTo("") == 0) {
+					userName.setText("username");
+					userName.setEnabled(false);
+				}
+			    password.setEnabled(true);
+			    password.setText("");
+			    password.requestFocus();
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+			public void mouseReleased(MouseEvent e) {}
+		});
+		mainPanel.add(userName);
+		mainPanel.add(password);
 		
-		logIn = new JButton("Login");
-		logIn.setBounds(300,40,75,25);
+		signUp = new JButton("Join") {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		signUp.setOpaque(false);
+		signUp.setBackground(new Color(112,138,144,75));
+		signUp.setBounds((WIDTH/2)-70, 150, 60, 30);
+		signUp.setBorder(BorderFactory.createEtchedBorder());
+		
+		logIn = new JButton("Login") {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		logIn.setOpaque(false);
+		logIn.setBackground(new Color(112,138,144,75));
+		logIn.setBounds((WIDTH/2), 150, 60, 30);
+		logIn.setBorder(BorderFactory.createEtchedBorder());
 		logIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String uName    = userName.getText();
-				String pWord    = password.getText();
+				String uName = userName.getText();
+				String pWord = password.getText();
 		
 				XMPPConnection c = new XMPPConnection("67.185.201.165");
 				try {
@@ -50,6 +182,7 @@ public class UserPrompt extends JFrame {
 			}
 			
 		});
-		add(logIn);
+		mainPanel.add(logIn);
+		mainPanel.add(signUp);
 	}
 }

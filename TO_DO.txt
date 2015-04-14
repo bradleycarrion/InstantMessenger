@@ -1,0 +1,26 @@
+TO DO::
+
+UserPrompt.java
+	-needs to show error if in-propper login
+	-needs sign up
+	-after username and pw entered ENTER key should start login
+
+AddFriendFrame.java
+	-should look like the login screen
+	-needs to actually check if the user is valid
+	-doesn't update freind list in MainChat.java
+
+
+ChatWindow.java
+	-needs to look better e.g. font, size
+	-needs a send button
+	-everything could be sized better
+
+MainChat.java
+	-needs to look better 
+	-friend list should update when new friend added
+	-needs to be sized better
+	-could use more features
+
+Everything needs comments, so comment
+	

@@ -1,11 +1,11 @@
 TO DO:: **(add your name next to the thing you want to work on so someone else doesn't work on it also)**
 
-UserPrompt.java
+UserPrompt.java - Bradley
 	-needs to show error if in-propper login
 	-needs sign up
 	-after username and pw entered ENTER key should start login
 
-AddFriendFrame.java
+AddFriendFrame.java - Bradley
 	-should look like the login screen
 	-needs to actually check if the user is valid
 	-doesn't update freind list in MainChat.java

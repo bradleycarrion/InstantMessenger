@@ -176,6 +176,11 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		openWindows.remove(theOther);
 	}
 	
+	/**
+	 * delegate method for add friend delegate to update friend list
+	 * after a new friend is added
+	 */
+	@Override
 	public void updateRoster(String theOther) {
 		Roster roster = userConnection.getRoster();
 		
@@ -185,7 +190,6 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         //array list of the names
         ArrayList<String> aL = new ArrayList<String>();
         
-
         for (RosterEntry entry : entries) {
         	//add from collection to ArrayList
         	aL.add(entry.getUser());
@@ -193,20 +197,5 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         data = aL.toArray(new String[aL.size()]);
         //set the data for JList
 		friendList.setListData(data);
-		/*Chat theChat = userConnection.getChatManager().createChat(theOther, new MessageListener() {
-			@Override
-			public void processMessage(Chat arg0, Message arg1) {
-				//Ensures that another window is not open with this user
-				//if not open a ChatWindow
-				ChatWindow win = new ChatWindow(theOther, userConnection);
-				//set the delegate
-				//this enables the window to be popped from open windows list
-				win.delegate = MainChat.this;
-				win.setVisible(true);
-				win.addMessageToFrame(arg1.getBody(), theOther);
-				openWindows.add(theOther);
-			}
-			
-		});*/
 	}
 }

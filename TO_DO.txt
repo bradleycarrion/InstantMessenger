@@ -4,6 +4,7 @@ UserPrompt.java - Bradley
 	-needs to show error if in-propper login
 	-needs sign up
 	-after username and pw entered ENTER key should start login
+	-hide the password
 
 AddFriendFrame.java - Bradley
 	-should look like the login screen

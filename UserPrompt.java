@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -35,7 +36,8 @@ public class UserPrompt extends JFrame {
 	
 	public UserPrompt() {
 		super();
-		
+		//the connection to the server
+		XMPPConnection c = new XMPPConnection("67.185.201.165");
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = ((int) screenSize.getWidth()) / 2;
@@ -150,6 +152,15 @@ public class UserPrompt extends JFrame {
 		signUp.setBackground(new Color(112,138,144,75));
 		signUp.setBounds((WIDTH/2)-70, 150, 60, 30);
 		signUp.setBorder(BorderFactory.createEtchedBorder());
+		signUp.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JoinWindow join = new JoinWindow(c);
+				join.setVisible(true);
+				UserPrompt.this.dispose();
+			}
+			
+		});
 		
 		logIn = new JButton("Login") {
 			protected void paintComponent(Graphics g)
@@ -159,6 +170,7 @@ public class UserPrompt extends JFrame {
 		        super.paintComponent(g);
 		    }
 		};
+		
 		logIn.setOpaque(false);
 		logIn.setBackground(new Color(112,138,144,75));
 		logIn.setBounds((WIDTH/2), 150, 60, 30);
@@ -166,19 +178,26 @@ public class UserPrompt extends JFrame {
 		logIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String uName = userName.getText();
-				String pWord = password.getText();
-		
-				XMPPConnection c = new XMPPConnection("67.185.201.165");
-				try {
-					c.connect();
-					c.login(uName, pWord);
-					MainChat chatMain = new MainChat(c);
-					chatMain.setVisible(true);
-					UserPrompt.this.dispose();
-				} catch (XMPPException e) {
-					System.err.println("Couldn't connect to server");
-				}
+				//create new thread to perform the login so the gui doesnt get blocked
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						String uName = userName.getText();
+						String pWord = password.getText();
+						try {
+							c.connect();
+							c.login(uName, pWord);
+							MainChat chatMain = new MainChat(c);
+							chatMain.setVisible(true);
+							UserPrompt.this.dispose();
+						} catch (XMPPException e) {
+							JOptionPane.showMessageDialog(UserPrompt.this, "Invalid Username or Password", "Login Error",  JOptionPane.ERROR_MESSAGE);
+							System.err.println("Couldn't connect to server");
+						}
+					}
+					
+				}).start();
+				
 			}
 			
 		});

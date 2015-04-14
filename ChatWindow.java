@@ -38,6 +38,7 @@ public class ChatWindow extends JFrame {
 		//set up the textArea with the scroll
 		textArea = new JTextArea();
 		textArea.setLineWrap(true);
+		textArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane (textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setBounds(0,0,WIDTH-20,HEIGHT - 100);
 		add(scroll);
@@ -103,6 +104,11 @@ public class ChatWindow extends JFrame {
 		
 	}
 	
+	/**
+	 * adds text to the message screen 
+	 * @param the message to be added
+	 * @param from: the user from whom it was sent
+	 */
 	public void addMessageToFrame(String message, String from) {
 		textArea.append(from + ": " + message + "\n");
 	}

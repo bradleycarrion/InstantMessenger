@@ -35,6 +35,7 @@ public class AddFriendFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				delegate.addFriend(userName.getText(), name.getText());
+				delegate.updateRoster(userName.getText());
 				AddFriendFrame.this.dispose();
 			}
 			

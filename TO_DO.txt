@@ -1,4 +1,4 @@
-TO DO::
+TO DO:: **(add your name next to the thing you want to work on so someone else doesn't work on it also)**
 
 UserPrompt.java
 	-needs to show error if in-propper login

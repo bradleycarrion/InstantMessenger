@@ -2,13 +2,13 @@ TO DO:: **(add your name next to the thing you want to work on so someone else d
 
 UserPrompt.java - Bradley
 	-needs to show error if in-propper login
-	-needs sign up
+	-needs sign up -> Bert
 	-after username and pw entered ENTER key should start login
 	-hide the password
 
 AddFriendFrame.java - Bradley
 	-should look like the login screen
-	-needs to actually check if the user is valid
+	-needs to actually check if the user is valid -> Bert
 	-doesn't update freind list in MainChat.java
 
 
@@ -19,7 +19,7 @@ ChatWindow.java
 
 MainChat.java
 	-needs to look better 
-	-friend list should update when new friend added
+	-friend list should update when new friend added -> Bert
 	-needs to be sized better
 	-could use more features
 

@@ -15,6 +15,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
@@ -91,25 +92,31 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         	//add from collection to ArrayList
         	aL.add(entry.getUser());
         	
-        	//create new chat with the user so messages can "Pop up"
-        	Chat theChat = userConnection.getChatManager().createChat(entry.getUser(), new MessageListener() {
-    			@Override
-    			public void processMessage(Chat arg0, Message arg1) {
-    				System.out.println("Message incoming");
-    				//Ensures that another window is not open with this user
-    				if (!openWindows.contains(entry.getUser())) { 
-    					//if not open a ChatWindow
-    					ChatWindow win = new ChatWindow(entry.getUser(), userConnection);
-    					//set the delegate
-    					//this enables the window to be popped from open windows list
-    					win.delegate = MainChat.this;
-    					win.setVisible(true);
-    					win.addMessageToFrame(arg1.getBody(), entry.getUser());
-    					openWindows.add(entry.getUser());
-    				}
-    			}
-    		});
         }
+        
+        userConnection.getChatManager().addChatListener(new ChatManagerListener() {
+
+			@Override
+			public void chatCreated(Chat arg0, boolean arg1) {
+				arg0.addMessageListener(new MessageListener() {
+					@Override
+					public void processMessage(Chat arg0, Message arg1) {
+						if (!openWindows.contains(arg0.getParticipant())) { 
+							//if not open a ChatWindow
+							ChatWindow win = new ChatWindow(arg1.getFrom(), userConnection);
+							//set the delegate
+							//this enables the window to be popped from open windows list
+							win.delegate = MainChat.this;
+							win.setVisible(true);
+							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
+							openWindows.add(arg0.getParticipant());
+						}	
+					}
+					
+				});
+			}
+    		
+    	});
         
         //convert ArrayList of names to an Array of strings to be used with JList
         data = aL.toArray(new String[aL.size()]);
@@ -186,22 +193,20 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         data = aL.toArray(new String[aL.size()]);
         //set the data for JList
 		friendList.setListData(data);
-		
-		Chat theChat = userConnection.getChatManager().createChat(theOther, new MessageListener() {
+		/*Chat theChat = userConnection.getChatManager().createChat(theOther, new MessageListener() {
 			@Override
 			public void processMessage(Chat arg0, Message arg1) {
 				//Ensures that another window is not open with this user
-				 
-					//if not open a ChatWindow
-					ChatWindow win = new ChatWindow(theOther, userConnection);
-					//set the delegate
-					//this enables the window to be popped from open windows list
-					win.delegate = MainChat.this;
-					win.setVisible(true);
-					win.addMessageToFrame(arg1.getBody(), theOther);
-					openWindows.add(theOther);
+				//if not open a ChatWindow
+				ChatWindow win = new ChatWindow(theOther, userConnection);
+				//set the delegate
+				//this enables the window to be popped from open windows list
+				win.delegate = MainChat.this;
+				win.setVisible(true);
+				win.addMessageToFrame(arg1.getBody(), theOther);
+				openWindows.add(theOther);
 			}
 			
-		});
+		});*/
 	}
 }

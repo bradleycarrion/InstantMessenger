@@ -1,8 +1,9 @@
 TO DO:: **(add your name next to the thing you want to work on so someone else doesn't work on it also)**
+DONT PUSH TO GITHUB
+email to Bert (bheinzelman@zagmail.gonzaga.edu) the changes
 
-UserPrompt.java - Bradley
-	-needs to show error if in-propper login
-	-needs sign up -> Bert
+
+UserPrompt.java ------ Bradley
 	-after username and pw entered ENTER key should start login
 	-hide the password
 
@@ -12,16 +13,21 @@ AddFriendFrame.java - Bradley
 	-doesn't update freind list in MainChat.java
 
 
-ChatWindow.java
+ChatWindow.java ---- MICHAEL
 	-needs to look better e.g. font, size
 	-needs a send button
 	-everything could be sized better
+	-colors, background images, sound when messages received
 
-MainChat.java
+MainChat.java ----BRADLEY
 	-needs to look better 
-	-friend list should update when new friend added -> Bert
 	-needs to be sized better
 	-could use more features
+	-Shows when the user is online -> Bert
+
+JoinWindow.java ------WESTON
+	-looks terrible
+	-should look like UserPrompt or AddFriendFrame
 
 Everything needs comments, so comment
 	

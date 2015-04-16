@@ -4,7 +4,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -39,6 +40,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	
 	//list of open windows--> do not allow more than one of the same window
 	private ArrayList<String> openWindows;
+	private HashMap<String,ChatWindow> chatWindows;
 	
 	public MainChat(XMPPConnection c) {
 		super();
@@ -48,6 +50,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		
 		//init array of open windows
 		openWindows = new ArrayList<String>();
+		chatWindows = new HashMap<String,ChatWindow>();
 		
 		//init connection
 		userConnection = c;
@@ -110,7 +113,12 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 							win.setVisible(true);
 							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
 							openWindows.add(arg0.getParticipant());
-						}	
+							chatWindows.put(arg0.getParticipant(), win);
+						}
+						else {
+							ChatWindow win = chatWindows.get(arg0.getParticipant());
+							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
+						}
 					}
 					
 				});

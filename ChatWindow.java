@@ -9,6 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.jivesoftware.smack.Chat;
+import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
@@ -44,14 +45,19 @@ public class ChatWindow extends JFrame {
 		add(scroll);
 		
 		//start the chat with the other user
-		theChat = connection.getChatManager().createChat(otherUser, new MessageListener() {
+		/*theChat = connection.getChatManager().createChat(otherUser, new MessageListener() {
 			@Override
 			public void processMessage(Chat arg0, Message arg1) {
 				if (arg1.getBody() != null) {
+					System.out.println("Mess.");
 					addMessageToFrame(arg1.getBody(), arg0.getParticipant());
 				}
 			}
-		});
+		});*/
+		
+		
+		
+		theChat = connection.getChatManager().createChat(otherUser, null);
 		
 		//set up the bottom panel
 		bottomPanel = new JPanel();
@@ -74,6 +80,7 @@ public class ChatWindow extends JFrame {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					if (!messageField.getText().equals("")) { //don't send if empty message
 						try {
+							System.out.println("message to be sent");
 							theChat.sendMessage(messageField.getText());
 							addMessageToFrame(messageField.getText(), "Me");
 							messageField.setText("");

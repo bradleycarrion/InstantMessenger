@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Presence;
 
 
 public class UserPrompt extends JFrame {
@@ -187,6 +188,9 @@ public class UserPrompt extends JFrame {
 						try {
 							c.connect();
 							c.login(uName, pWord);
+							Presence p = new Presence(Presence.Type.available);
+							p.setStatus("Online");
+							c.sendPacket(p);
 							MainChat chatMain = new MainChat(c);
 							chatMain.setVisible(true);
 							UserPrompt.this.dispose();
@@ -205,3 +209,4 @@ public class UserPrompt extends JFrame {
 		mainPanel.add(signUp);
 	}
 }
+

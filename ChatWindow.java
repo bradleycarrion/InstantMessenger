@@ -44,18 +44,6 @@ public class ChatWindow extends JFrame {
 		scroll.setBounds(0,0,WIDTH-20,HEIGHT - 100);
 		add(scroll);
 		
-		//start the chat with the other user
-		/*theChat = connection.getChatManager().createChat(otherUser, new MessageListener() {
-			@Override
-			public void processMessage(Chat arg0, Message arg1) {
-				if (arg1.getBody() != null) {
-					System.out.println("Mess.");
-					addMessageToFrame(arg1.getBody(), arg0.getParticipant());
-				}
-			}
-		});*/
-		
-		
 		
 		theChat = connection.getChatManager().createChat(otherUser, null);
 		
@@ -80,7 +68,6 @@ public class ChatWindow extends JFrame {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					if (!messageField.getText().equals("")) { //don't send if empty message
 						try {
-							System.out.println("message to be sent");
 							theChat.sendMessage(messageField.getText());
 							addMessageToFrame(messageField.getText(), "Me");
 							messageField.setText("");

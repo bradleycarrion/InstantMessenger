@@ -1,16 +1,23 @@
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -20,9 +27,11 @@ import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
+import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
 
 
 @SuppressWarnings("serial")
@@ -31,7 +40,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	private final int WIDTH  = 500;
 	
 	//gui
-	private JList<String> friendList;
+	private JList friendList;
 	private JPanel topPanel;
 	private JButton addFriend;
 	
@@ -41,6 +50,8 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	//list of open windows--> do not allow more than one of the same window
 	private ArrayList<String> openWindows;
 	private HashMap<String,ChatWindow> chatWindows;
+	private Map<String, ImageIcon> imageMap;
+	
 	
 	public MainChat(XMPPConnection c) {
 		super();
@@ -48,9 +59,11 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		setBounds(0,0,WIDTH,HEIGHT);
 		setLayout(null);
 		
+		
 		//init array of open windows
 		openWindows = new ArrayList<String>();
 		chatWindows = new HashMap<String,ChatWindow>();
+		imageMap    = new HashMap<String, ImageIcon>();
 		
 		//init connection
 		userConnection = c;
@@ -78,11 +91,19 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		
 		
 		//initialize the friend list
-		friendList = new JList<String>();
-		friendList.setBounds(0,100,100,HEIGHT - 100);
 		
 		//get the users from the server
 		Roster roster = userConnection.getRoster();
+		roster.addRosterListener(new RosterListener() {
+		    public void entriesDeleted(Collection<String> addresses) {}
+		    public void entriesUpdated(Collection<String> addresses) {}
+		    public void presenceChanged(Presence presence) {
+		        updateRoster();
+		        System.out.println("Online");
+		    }
+			@Override
+			public void entriesAdded(Collection<String> arg0) {}
+		});
 		
 		//convert to a collection Roster -> Collection
         Collection<RosterEntry> entries = roster.getEntries();
@@ -94,11 +115,48 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         for (RosterEntry entry : entries) {
         	//add from collection to ArrayList
         	aL.add(entry.getUser());
-        	
+        	Presence availability = roster.getPresence(entry.getUser()+"/Smack");
+        	imageMap.put(entry.getUser(), new ImageIcon(availability.getType().name() + ".png"));
         }
         
-        userConnection.getChatManager().addChatListener(new ChatManagerListener() {
-
+        
+        //convert ArrayList of names to an Array of strings to be used with JList
+        data = aL.toArray(new String[aL.size()]);
+        friendList = new JList(data);
+        friendList.setCellRenderer(new OnlineListRenderer(imageMap));
+        JScrollPane scroll = new JScrollPane(friendList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll.setBounds(0,100,300,HEIGHT - 100);
+        //set the data for JList
+		add(scroll);
+		
+		//detects click on name
+		friendList.addMouseListener(new MouseListener() {
+				@Override
+				public void mouseClicked(MouseEvent arg0) {
+					String val = (String)MainChat.this.friendList.getSelectedValue();
+					//only allows one open window per friend
+					if (!openWindows.contains(val)) {
+						ChatWindow win = new ChatWindow(val, userConnection);
+						win.delegate = MainChat.this;
+						win.setVisible(true);
+						openWindows.add(val);
+						chatWindows.put(val + "/Smack" , win);
+						
+					}
+				}
+				//unused methods from interface
+				@Override
+				public void mouseEntered(MouseEvent arg0) {}
+				@Override
+				public void mouseExited(MouseEvent arg0) {}
+				@Override
+				public void mousePressed(MouseEvent arg0) {}
+				@Override
+				public void mouseReleased(MouseEvent arg0) {}
+		});
+		
+		//the chat listener,, gets all the messages
+		userConnection.getChatManager().addChatListener(new ChatManagerListener() {
 			@Override
 			public void chatCreated(Chat arg0, boolean arg1) {
 				arg0.addMessageListener(new MessageListener() {
@@ -113,10 +171,10 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 							win.setVisible(true);
 							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
 							openWindows.add(arg0.getParticipant());
-							chatWindows.put(arg0.getParticipant(), win);
+							chatWindows.put(arg1.getFrom(), win);
 						}
 						else {
-							ChatWindow win = chatWindows.get(arg0.getParticipant());
+							ChatWindow win = chatWindows.get(arg1.getFrom());
 							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
 						}
 					}
@@ -125,38 +183,15 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 			}
     		
     	});
-        
-        //convert ArrayList of names to an Array of strings to be used with JList
-        data = aL.toArray(new String[aL.size()]);
-        //set the data for JList
-		friendList.setListData(data);
-		add(friendList);
-		
-		//detects click on name
-		friendList.addMouseListener(new MouseListener() {
-				@Override
-				public void mouseClicked(MouseEvent arg0) {
-					String val = MainChat.this.friendList.getSelectedValue();
-					//only allows one open window per friend
-					if (!openWindows.contains(val)) {
-						ChatWindow win = new ChatWindow(val, userConnection);
-						win.delegate = MainChat.this;
-						win.setVisible(true);
-						openWindows.add(val);
-					}
-				}
-				//unused methods from interface
-				@Override
-				public void mouseEntered(MouseEvent arg0) {}
-				@Override
-				public void mouseExited(MouseEvent arg0) {}
-				@Override
-				public void mousePressed(MouseEvent arg0) {}
-				@Override
-				public void mouseReleased(MouseEvent arg0) {}
-		});
-		
-		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		//listens for a window close to send unavailable presence
+		this.addWindowListener(new WindowAdapter() {
+	        @Override
+	        public void windowClosing(WindowEvent event) {
+	        	Presence p = new Presence(Presence.Type.unavailable);
+	        	userConnection.sendPacket(p);
+	        	System.exit(0);
+	        }
+	    });
 	}
 	
 	
@@ -182,6 +217,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	@Override
 	public void didExitWindow(String theOther) {
 		openWindows.remove(theOther);
+		chatWindows.remove(theOther);
 	}
 	
 	/**
@@ -189,7 +225,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	 * after a new friend is added
 	 */
 	@Override
-	public void updateRoster(String theOther) {
+	public void updateRoster() {
 		Roster roster = userConnection.getRoster();
 		
 		//convert to a collection Roster -> Collection
@@ -197,13 +233,18 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         String[] data = null;
         //array list of the names
         ArrayList<String> aL = new ArrayList<String>();
+        imageMap.clear();
         
         for (RosterEntry entry : entries) {
-        	//add from collection to ArrayList
         	aL.add(entry.getUser());
+        	Presence availability = roster.getPresence(entry.getUser()+"/Smack");
+        	imageMap.put(entry.getUser(), new ImageIcon(availability.getType().name() + ".png"));
         }
         data = aL.toArray(new String[aL.size()]);
         //set the data for JList
+        
 		friendList.setListData(data);
+		friendList.setCellRenderer(new OnlineListRenderer(imageMap));
 	}
+
 }

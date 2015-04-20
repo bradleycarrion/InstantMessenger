@@ -34,11 +34,12 @@ public class UserPrompt extends JFrame {
 	private JButton logIn;
 	private JButton signUp;
 	private JPanel mainPanel;
+	private XMPPConnection c;
 	
 	public UserPrompt() {
 		super();
 		//the connection to the server
-		XMPPConnection c = new XMPPConnection("67.185.201.165");
+		c = new XMPPConnection("67.185.201.165");
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int width = ((int) screenSize.getWidth()) / 2;
@@ -197,6 +198,7 @@ public class UserPrompt extends JFrame {
 						} catch (XMPPException e) {
 							JOptionPane.showMessageDialog(UserPrompt.this, "Invalid Username or Password", "Login Error",  JOptionPane.ERROR_MESSAGE);
 							System.err.println("Couldn't connect to server");
+							UserPrompt.this.c = new XMPPConnection("67.185.201.165");
 						}
 					}
 					

@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -35,6 +36,7 @@ public class ChatWindow extends JFrame {
 		super();
 		setLayout(null);
 		setBounds(0,0,WIDTH,HEIGHT);
+		this.getContentPane().setBackground(Color.BLUE);
 		
 		//set up the textArea with the scroll
 		textArea = new JTextArea();

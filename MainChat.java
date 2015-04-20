@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,13 +12,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -30,8 +36,10 @@ import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.RosterPacket;
 
 
 @SuppressWarnings("serial")
@@ -48,7 +56,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	private XMPPConnection userConnection;
 	
 	//list of open windows--> do not allow more than one of the same window
-	private ArrayList<String> openWindows;
+	
 	private HashMap<String,ChatWindow> chatWindows;
 	private Map<String, ImageIcon> imageMap;
 	
@@ -58,10 +66,10 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		//set up frame
 		setBounds(0,0,WIDTH,HEIGHT);
 		setLayout(null);
-		
+		setTitle(c.getUser());
+		this.getContentPane().setBackground(Color.BLUE);
 		
 		//init array of open windows
-		openWindows = new ArrayList<String>();
 		chatWindows = new HashMap<String,ChatWindow>();
 		imageMap    = new HashMap<String, ImageIcon>();
 		
@@ -99,7 +107,6 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		    public void entriesUpdated(Collection<String> addresses) {}
 		    public void presenceChanged(Presence presence) {
 		        updateRoster();
-		        System.out.println("Online");
 		    }
 			@Override
 			public void entriesAdded(Collection<String> arg0) {}
@@ -135,13 +142,34 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 				public void mouseClicked(MouseEvent arg0) {
 					String val = (String)MainChat.this.friendList.getSelectedValue();
 					//only allows one open window per friend
-					if (!openWindows.contains(val)) {
-						ChatWindow win = new ChatWindow(val, userConnection);
-						win.delegate = MainChat.this;
-						win.setVisible(true);
-						openWindows.add(val);
-						chatWindows.put(val + "/Smack" , win);
+					if (SwingUtilities.isLeftMouseButton(arg0) && arg0.getClickCount() == 2) {
+						if (!chatWindows.containsKey(val)) {
+							ChatWindow win = new ChatWindow(val, userConnection);
+							win.delegate = MainChat.this;
+							win.setVisible(true);
+							chatWindows.put(val + "/Smack" , win);
 						
+						}
+					}
+					else if (SwingUtilities.isRightMouseButton(arg0) && val != null) {
+						 JPopupMenu menu = new JPopupMenu();
+			             JMenuItem item = new JMenuItem("Remove Friend");
+			             item.addActionListener(new ActionListener() {
+			            	 public void actionPerformed(ActionEvent e) {
+			            		 //remove the freind from the roster
+			            		 RosterPacket packet = new RosterPacket();
+			            		 packet.setType(IQ.Type.SET);
+			            		 RosterPacket.Item item  = new RosterPacket.Item(val, null);
+			            		 item.setItemType(RosterPacket.ItemType.remove);
+			            		 packet.addRosterItem(item);
+			            		 userConnection.sendPacket(packet);
+			            		 
+			            		 //then update the roster
+						         removeFriend(val);
+			                 }
+			             });
+			             menu.add(item);
+			             menu.show(friendList, 300, 0);
 					}
 				}
 				//unused methods from interface
@@ -162,7 +190,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 				arg0.addMessageListener(new MessageListener() {
 					@Override
 					public void processMessage(Chat arg0, Message arg1) {
-						if (!openWindows.contains(arg0.getParticipant())) { 
+						if (!chatWindows.containsKey(arg1.getFrom())) { 
 							//if not open a ChatWindow
 							ChatWindow win = new ChatWindow(arg1.getFrom(), userConnection);
 							//set the delegate
@@ -170,7 +198,6 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 							win.delegate = MainChat.this;
 							win.setVisible(true);
 							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
-							openWindows.add(arg0.getParticipant());
 							chatWindows.put(arg1.getFrom(), win);
 						}
 						else {
@@ -191,7 +218,35 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	        	userConnection.sendPacket(p);
 	        	System.exit(0);
 	        }
-	    });
+	    }); 
+	}
+
+/**
+ * used to remove a friend from the JList
+ * called when a friend is removed
+ * @param other friend to remove
+ */
+	private void removeFriend(String other) {
+		Roster roster = userConnection.getRoster();
+		
+		//convert to a collection Roster -> Collection
+        Collection<RosterEntry> entries = roster.getEntries();
+        String[] data = null;
+        //array list of the names
+        ArrayList<String> aL = new ArrayList<String>();
+        imageMap.clear();
+        
+        for (RosterEntry entry : entries) {
+        	if (entry.getUser() != other) 
+        		aL.add(entry.getUser());
+        	Presence availability = roster.getPresence(entry.getUser()+"/Smack");
+        	imageMap.put(entry.getUser(), new ImageIcon(availability.getType().name() + ".png"));
+        }
+        data = aL.toArray(new String[aL.size()]);
+        //set the data for JList
+        
+		friendList.setListData(data);
+		friendList.setCellRenderer(new OnlineListRenderer(imageMap));
 	}
 	
 	
@@ -216,7 +271,6 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	 */
 	@Override
 	public void didExitWindow(String theOther) {
-		openWindows.remove(theOther);
 		chatWindows.remove(theOther);
 	}
 	

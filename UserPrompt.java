@@ -24,6 +24,7 @@ import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
 
+//
 
 public class UserPrompt extends JFrame {
 	private final int WIDTH  = 400;

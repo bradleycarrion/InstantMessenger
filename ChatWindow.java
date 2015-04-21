@@ -1,9 +1,14 @@
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -29,6 +34,7 @@ public class ChatWindow extends JFrame {
 	private JTextArea textArea;
 	private JPanel bottomPanel;
 	private JTextArea messageField;
+	private JButton sendMessage;
 	
 	public ChatWindowDelegate delegate;
 	
@@ -36,14 +42,15 @@ public class ChatWindow extends JFrame {
 		super();
 		setLayout(null);
 		setBounds(0,0,WIDTH,HEIGHT);
-		this.getContentPane().setBackground(Color.BLUE);
+		this.getContentPane().setBackground(Color.DARK_GRAY);
 		
 		//set up the textArea with the scroll
 		textArea = new JTextArea();
+		textArea.setFont(new Font("Arial", Font.PLAIN, 17));
 		textArea.setLineWrap(true);
 		textArea.setEditable(false);
 		JScrollPane scroll = new JScrollPane (textArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setBounds(0,0,WIDTH-20,HEIGHT - 100);
+		scroll.setBounds(0,0,WIDTH-20,HEIGHT - 125);
 		add(scroll);
 		
 		
@@ -52,11 +59,12 @@ public class ChatWindow extends JFrame {
 		//set up the bottom panel
 		bottomPanel = new JPanel();
 		bottomPanel.setLayout(null);
-		bottomPanel.setBounds(0,HEIGHT-100, WIDTH, 50);
+		bottomPanel.setBounds(0,HEIGHT-125, WIDTH, 75);
 		add(bottomPanel);
 		
 		//message field set up
 		messageField = new JTextArea();
+		messageField.setFont(new Font("Arial", Font.PLAIN, 17));
 		messageField.setLineWrap(true);
 		//scroll that message field sits in set up
 		JScrollPane mFieldScroll = new JScrollPane(messageField, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -73,6 +81,7 @@ public class ChatWindow extends JFrame {
 							theChat.sendMessage(messageField.getText());
 							addMessageToFrame(messageField.getText(), "Me");
 							messageField.setText("");
+							messageField.setCaretPosition(0);
 						} catch (XMPPException e1) {
 							e1.printStackTrace();
 						}
@@ -88,6 +97,25 @@ public class ChatWindow extends JFrame {
 			
 		});
 		bottomPanel.add(mFieldScroll);
+		
+		sendMessage = new JButton("Send");
+		sendMessage.setIcon(new ImageIcon("send.png"));
+		sendMessage.setBounds(bottomPanel.getWidth() - 100, 0, 78, 75);
+		sendMessage.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					theChat.sendMessage(messageField.getText());
+					addMessageToFrame(messageField.getText(), "Me");
+					messageField.setText("");	
+					messageField.setCaretPosition(0);
+				} catch (XMPPException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}			
+			}
+			
+		});
+		bottomPanel.add(sendMessage);
 		
 		//add window listener to clean up after close
 		//call delegate function to remove name from window list

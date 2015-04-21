@@ -54,7 +54,7 @@ public class UserPrompt extends JFrame {
             }
         };
         JLabel contentPane = new JLabel();
-        contentPane.setIcon(new ImageIcon(getClass().getClassLoader().getResource("bulldog.jpg")));
+        contentPane.setIcon(new ImageIcon("bulldog.jpg"));
         contentPane.setLayout(new BorderLayout());
         mainPanel.setLayout(null);
         mainPanel.setOpaque(false);
@@ -232,3 +232,4 @@ public class UserPrompt extends JFrame {
         mainPanel.add(signUp);
     }
 }
+

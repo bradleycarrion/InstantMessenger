@@ -145,6 +145,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 					if (SwingUtilities.isLeftMouseButton(arg0) && arg0.getClickCount() == 2) {
 						if (!chatWindows.containsKey(val)) {
 							ChatWindow win = new ChatWindow(val, userConnection);
+							win.setTitle("Chat with: " + val);
 							win.delegate = MainChat.this;
 							win.setVisible(true);
 							chatWindows.put(val + "/Smack" , win);
@@ -193,6 +194,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 						if (!chatWindows.containsKey(arg1.getFrom())) { 
 							//if not open a ChatWindow
 							ChatWindow win = new ChatWindow(arg1.getFrom(), userConnection);
+							win.setTitle("Chat with: " + arg1.getFrom());
 							//set the delegate
 							//this enables the window to be popped from open windows list
 							win.delegate = MainChat.this;

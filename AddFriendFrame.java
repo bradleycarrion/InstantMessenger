@@ -33,6 +33,7 @@ public class AddFriendFrame extends JFrame {
 		int height = ((int) screenSize.getHeight()) / 2;
 		setBounds(width-(WIDTH/2),height-(HEIGHT/2),WIDTH, HEIGHT);
 		setLayout(null);
+		setTitle("Add a new friend");
 		mainPanel = new JPanel() {
 			protected void paintComponent(Graphics g)
 		    {
@@ -42,7 +43,7 @@ public class AddFriendFrame extends JFrame {
 		    }
 		};
 		JLabel contentPane = new JLabel();
-		contentPane.setIcon(new ImageIcon(getClass().getClassLoader().getResource("bulldog.jpg")));
+		contentPane.setIcon(new ImageIcon("bulldog.jpg"));
 		contentPane.setLayout(new BorderLayout());
 		mainPanel.setLayout(null);
 		mainPanel.setOpaque(false);
@@ -108,17 +109,17 @@ public class AddFriendFrame extends JFrame {
 		});
 		mainPanel.add(name);
 		
-		addFriend = new JButton("Add Friend") {
+		addFriend = new JButton("Add Friend");/*{
 			protected void paintComponent(Graphics g)
 		    {
 		        g.setColor( getBackground() );
 		        g.fillRect(0, 0, getWidth(), getHeight());
 		        super.paintComponent(g);
 		    }
-		};
-		addFriend.setOpaque(false);
-		addFriend.setBackground(new Color(112,138,144,75));
-		addFriend.setBounds(155, 165, 80, 40);
+		};*/
+		//addFriend.setOpaque(false);
+		//addFriend.setBackground(new Color(112,138,144,75));
+		addFriend.setBounds(145, 165, 100, 40);
 		addFriend.addActionListener(new ActionListener() {
 
 			@Override

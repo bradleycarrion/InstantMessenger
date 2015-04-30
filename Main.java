@@ -1,8 +1,21 @@
+import java.awt.EventQueue;
+
+
+
 public class Main {
 	
 	public static void main(String[] args) {
-		UserPrompt prompt = new UserPrompt();
-		prompt.setVisible(true);
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				UserPrompt prompt = new UserPrompt();
+				prompt.setVisible(true);
+				
+			}
+			
+		});
+		
 	}
 
 	

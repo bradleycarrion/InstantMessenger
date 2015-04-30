@@ -15,11 +15,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.jivesoftware.smack.Chat;
-import org.jivesoftware.smack.ChatManagerListener;
-import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
+
 
 
 public class ChatWindow extends JFrame {
@@ -78,7 +76,9 @@ public class ChatWindow extends JFrame {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 					if (!messageField.getText().equals("")) { //don't send if empty message
 						try {
-							theChat.sendMessage(messageField.getText());
+							MatrixEncryption enc = new MatrixEncryption();
+							String eMessage = enc.Encrypt(messageField.getText());
+							theChat.sendMessage(eMessage);
 							addMessageToFrame(messageField.getText(), "Me");
 							messageField.setText("");
 							messageField.setCaretPosition(0);
@@ -103,8 +103,13 @@ public class ChatWindow extends JFrame {
 		sendMessage.setBounds(bottomPanel.getWidth() - 100, 0, 78, 75);
 		sendMessage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				MatrixEncryption enc = new MatrixEncryption();
+			
 				try {
-					theChat.sendMessage(messageField.getText());
+					//ENCRYPTION
+					String eMessage = enc.Encrypt(messageField.getText());
+					System.out.println(eMessage);
+					theChat.sendMessage(eMessage);
 					addMessageToFrame(messageField.getText(), "Me");
 					messageField.setText("");	
 					messageField.setCaretPosition(0);

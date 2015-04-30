@@ -1,5 +1,7 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -48,6 +50,7 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	private final int WIDTH  = 500;
 	
 	//gui
+	private JPanel mainPanel;
 	private JList friendList;
 	private JPanel topPanel;
 	private JButton addFriend;
@@ -64,10 +67,28 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 	public MainChat(XMPPConnection c) {
 		super();
 		//set up frame
+		setResizable(false);
 		setBounds(0,0,WIDTH,HEIGHT);
 		setLayout(null);
 		setTitle(c.getUser());
 		this.getContentPane().setBackground(Color.BLUE);
+		mainPanel = new JPanel() {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		JLabel contentPane = new JLabel();
+		contentPane.setIcon(new ImageIcon("gonzaga.jpg"));
+		contentPane.setLayout(new BorderLayout());
+		mainPanel.setLayout(null);
+		mainPanel.setOpaque(false);
+		mainPanel.setBackground(new Color(255,255,255,40));
+		setContentPane(contentPane);
+		setResizable(false);
+		contentPane.add(mainPanel);
 		
 		//init array of open windows
 		chatWindows = new HashMap<String,ChatWindow>();
@@ -77,12 +98,30 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 		userConnection = c;
 		
 		//top panel set up
-		topPanel = new JPanel();
+		topPanel = new JPanel() {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		topPanel.setEnabled(true);
+		topPanel.setBackground(new Color(255,255,255,40));
 		topPanel.setBounds(0, 0, WIDTH, 100);
-		add(topPanel);
+		mainPanel.add(topPanel);
 		
 		//add friend button set up
-		addFriend = new JButton("add friend");
+		addFriend = new JButton("add friend") {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor(getBackground());
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		addFriend.setEnabled(true);
+		//addFriend.setBackground(new Color(255,255,255,50));
 		addFriend.addActionListener(new ActionListener() {
 
 			@Override
@@ -129,18 +168,29 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
         
         //convert ArrayList of names to an Array of strings to be used with JList
         data = aL.toArray(new String[aL.size()]);
-        friendList = new JList(data);
+        friendList = new JList(data); 
+		friendList.setEnabled(true);
         friendList.setCellRenderer(new OnlineListRenderer(imageMap));
-        JScrollPane scroll = new JScrollPane(friendList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setBounds(0,100,300,HEIGHT - 100);
+        JScrollPane scroll = new JScrollPane(friendList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER) {
+			protected void paintComponent(Graphics g)
+		    {
+		        g.setColor( getBackground() );
+		        g.fillRect(0, 0, getWidth(), getHeight());
+		        super.paintComponent(g);
+		    }
+		};
+		scroll.setEnabled(true);
+		scroll.setOpaque(false);
+		scroll.setBackground(new Color(255,255,255,200));
+		scroll.setBounds(0,100,200,HEIGHT - 100);
         //set the data for JList
-		add(scroll);
+		mainPanel.add(scroll);
 		
 		//detects click on name
 		friendList.addMouseListener(new MouseListener() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-					String val = (String)MainChat.this.friendList.getSelectedValue();
+					final String val = (String)MainChat.this.friendList.getSelectedValue();
 					//only allows one open window per friend
 					if (SwingUtilities.isLeftMouseButton(arg0) && arg0.getClickCount() == 2) {
 						if (!chatWindows.containsKey(val)) {
@@ -191,6 +241,8 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 				arg0.addMessageListener(new MessageListener() {
 					@Override
 					public void processMessage(Chat arg0, Message arg1) {
+						MatrixEncryption m = new MatrixEncryption();
+						final String dMessage = m.Decrpyt(arg1.getBody());
 						if (!chatWindows.containsKey(arg1.getFrom())) { 
 							//if not open a ChatWindow
 							ChatWindow win = new ChatWindow(arg1.getFrom(), userConnection);
@@ -199,12 +251,13 @@ public class MainChat extends JFrame implements AddFriendDelegate, ChatWindowDel
 							//this enables the window to be popped from open windows list
 							win.delegate = MainChat.this;
 							win.setVisible(true);
-							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
+							
+							win.addMessageToFrame(dMessage, arg1.getFrom());
 							chatWindows.put(arg1.getFrom(), win);
 						}
 						else {
 							ChatWindow win = chatWindows.get(arg1.getFrom());
-							win.addMessageToFrame(arg1.getBody(), arg1.getFrom());
+							win.addMessageToFrame(dMessage, arg1.getFrom());
 						}
 					}
 					

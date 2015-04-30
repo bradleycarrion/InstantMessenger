@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Toolkit;
@@ -78,7 +79,6 @@ public class UserPrompt extends JFrame {
         userName.setText("username");
         userName.setEnabled(false);
         userName.addMouseListener(new MouseListener() {
-            @SuppressWarnings("deprecation")
             public void mousePressed(MouseEvent e) {
                 password.setEnabled(true);
                 userName.setEnabled(true);
@@ -210,7 +210,7 @@ public class UserPrompt extends JFrame {
                     @Override
                     public void run() {
                         String uName = userName.getText();
-                        String pWord = password.getText();
+                        String pWord = new String(password.getPassword());
                         try {
                             c.connect();
                             c.login(uName, pWord);
@@ -219,7 +219,7 @@ public class UserPrompt extends JFrame {
                             UserPrompt.this.dispose();
                         } catch (XMPPException e) {
                             JOptionPane.showMessageDialog(UserPrompt.this, "Invalid Username or Password", "Login Error",  JOptionPane.ERROR_MESSAGE);
-                            System.err.println("Couldn't connect to server");
+                            System.err.println("Couldn't connect to server");                       
                         }
                     }
                     
